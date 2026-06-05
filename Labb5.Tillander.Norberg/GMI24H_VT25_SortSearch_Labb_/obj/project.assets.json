@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 3,
   "targets": {
     "net9.0": {
       "AlgorithmLib/1.0.0": {
@@ -27,23 +27,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\camil\\.nuget\\packages\\": {},
+    "C:\\Users\\alexa\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\camil\\OneDrive\\Skrivbord\\Skola\\Algoritmer\\GMI24H_SortSearchVT25-main\\GMI24H_VT25_SortSearch_Labb_\\GMI24H_VT25_SortSearch_Labb_.csproj",
+      "projectUniqueName": "C:\\Users\\alexa\\Downloads\\Labb5\\Labb5\\Labb5.Tillander.Norberg\\GMI24H_VT25_SortSearch_Labb_\\GMI24H_VT25_SortSearch_Labb_.csproj",
       "projectName": "GMI24H_VT25_SortSearch_Labb_",
-      "projectPath": "C:\\Users\\camil\\OneDrive\\Skrivbord\\Skola\\Algoritmer\\GMI24H_SortSearchVT25-main\\GMI24H_VT25_SortSearch_Labb_\\GMI24H_VT25_SortSearch_Labb_.csproj",
-      "packagesPath": "C:\\Users\\camil\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\camil\\OneDrive\\Skrivbord\\Skola\\Algoritmer\\GMI24H_SortSearchVT25-main\\GMI24H_VT25_SortSearch_Labb_\\obj\\",
+      "projectPath": "C:\\Users\\alexa\\Downloads\\Labb5\\Labb5\\Labb5.Tillander.Norberg\\GMI24H_VT25_SortSearch_Labb_\\GMI24H_VT25_SortSearch_Labb_.csproj",
+      "packagesPath": "C:\\Users\\alexa\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\alexa\\Downloads\\Labb5\\Labb5\\Labb5.Tillander.Norberg\\GMI24H_VT25_SortSearch_Labb_\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\camil\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\alexa\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -56,11 +56,10 @@
       },
       "frameworks": {
         "net9.0": {
-          "framework": "net9.0",
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\camil\\OneDrive\\Skrivbord\\Skola\\Algoritmer\\GMI24H_SortSearchVT25-main\\AlgorithmLib\\AlgorithmLib.csproj": {
-              "projectPath": "C:\\Users\\camil\\OneDrive\\Skrivbord\\Skola\\Algoritmer\\GMI24H_SortSearchVT25-main\\AlgorithmLib\\AlgorithmLib.csproj"
+            "C:\\Users\\alexa\\Downloads\\Labb5\\Labb5\\Labb5.Tillander.Norberg\\AlgorithmLib\\AlgorithmLib.csproj": {
+              "projectPath": "C:\\Users\\alexa\\Downloads\\Labb5\\Labb5\\Labb5.Tillander.Norberg\\AlgorithmLib\\AlgorithmLib.csproj"
             }
           }
         }
@@ -75,11 +74,10 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.300"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "net9.0": {
-        "framework": "net9.0",
         "targetAlias": "net9.0",
         "imports": [
           "net461",
@@ -97,7 +95,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

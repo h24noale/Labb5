@@ -1,59 +1,108 @@
 ﻿using AlgorithmLib;
 using System.Diagnostics;
-
+using System.Linq;
 
 namespace GMI24H_VT25_SortSearch_Labb_
 {
-
     internal class Program
     {
+        private const int RepeatCount = 100;
+
         static void Main(string[] args)
         {
-            //Här är kod som kan användas om man vill jobba med dataströmmar (som ligger i Generator-katalogen och skapas som ström utifrån en given seed). 
-            const int numberOfPosts = 10000000;
+            const int numberOfPosts = 500000;
             const int seed = 123;
 
             var generator = new RandomLogGenerator();
             var logs = generator.GenerateLogs(numberOfPosts, seed).ToList();
+            //Test för sökalgoritmerna innan vi kör på loggdatan. Bra för att verifiera att de fungerar korrekt innan vi mäter prestanda.
+            SearchAlgorithmTests.RunBasicSearchTests();
 
-
-            //Skriver ut de fem första posterna i listan med LogEntry-typer. 
-            Console.WriteLine("förhandsvisning av loggdata:");
+            Console.WriteLine($"Totalt antal rader inlästa: {logs.Count}");
+            Console.WriteLine("Första 5 loggposter:");
             foreach (var entry in logs.Take(5))
             {
                 Console.WriteLine(entry);
             }
 
-            //Eftersom metoderna i SortingManager och SearchingManager-klasserna inte är statiska så behöver vi instansiera objekt av dessa klasser.
-            //Eftersom vi gjort våra Sorting- och SearchingManager-klasserna generiska (<T>) behöver vi även ange vilken typ av data det
-            //är som vi vill sortera eller söka efter. Vi anger datatyp i "diamanten" <>.
-            var sorter = new SortingManager<LogEntry>();
-            var searcher = new SearchingManager<LogEntry>();
+            var ipSearchManager = new SearchingManager<string>();
+            var intSearchManager = new SearchingManager<int>();
+            var logSearchManager = new SearchingManager<LogEntry>();
 
-            //Välj vilka data som ska plockas ut ur loggarna och jämföras. T.ex. Int eller strängar. Här behöver
-            //vi tänka på att välja samma datatyp som vi vill köra våra algoritmer på, dvs. de vi bestämde oss för
-            //när vi instansierade SortingManager och SearchingManager. I det här exemplet är det strängar.
-            //Därför skapar vi en lista av strängar dit vi kan spara våra ip-adresser.
-            //Vi använder LINQ för att selektera ut ip-adress-propertyn från varje enskilt logentry-post i logs-listan. 
-            List<string> ipAddresses = logs.Select(entry => entry.IpAddress).ToList();
+            var ipAddresses = logs.Select(entry => entry.IpAddress).ToList();
+            var statusCodes = logs.Select(entry => entry.StatusCode).ToList();
+            var logsByTime = logs.OrderBy(entry => entry.Timestamp).ToList();
 
-            //Från våra objekt, sorter och searcher, kan vi sedan anropa olika metoder där vi skickar in vår data som parametrar.
-            //Det finns ingen implementation av bubblesort i SortingManager just nu. Det här metodanropet är
-            //enbart en referens för att visa hur ni kan anropa en metod och skicka er sampledata som ni hämtar 
-            //med LogParsern från textfilen. 
-            //sorter.BubbleSort(ipAddresses); // <-- implementerar metod från SortingManager-classen som jag vill använda...
+            ipAddresses.Sort();
+            statusCodes.Sort();
 
-            //För att
-            //vi ska kunna mäta hur lång tid det tar att köra algoritmen kan vi använda
-            //stopwatch och timespan 
-            Stopwatch sw = Stopwatch.StartNew();
-            //TIPS1: det här är ett lämpligt ställe att placera körningen/anropet av din algoritm.
-            sw.Stop();
-            TimeSpan elapsedTime = sw.Elapsed; //TIPS2: här är det kanske en bra idé att göra någonting med data som sparats i elapsedTime... 
-                                               //Man kan ju till exempel tänka sig att det kan vara lämpligt att gå tillbaka till deluppgift 1 i labb 1
-                                               //och kolla hur ni gjorde med er data där...
+            string targetIp = "192.168.1.10";
+            RunSearchCase("IP-adress", "LinearSearch", RepeatCount, () => ipSearchManager.LinearSearch(ipAddresses, targetIp));
+            RunSearchCase("IP-adress", "BinarySearch", RepeatCount, () => ipSearchManager.BinarySearch(ipAddresses, targetIp));
+            RunSearchCase("IP-adress", "JumpSearch", RepeatCount, () => ipSearchManager.JumpSearch(ipAddresses, targetIp));
 
-            Console.WriteLine($"Totalt antal rader inlästa: {logs.Count}");
+            foreach (int statusCode in new[] { 401, 403, 500 })
+            {
+                RunSearchCase($"Statuskod {statusCode}", "BinarySearch", RepeatCount, () => intSearchManager.BinarySearch(statusCodes, statusCode));
+            }
+
+            DateTime intervalStart = logsByTime[numberOfPosts / 4].Timestamp;
+            DateTime intervalEnd = logsByTime[numberOfPosts / 2].Timestamp;
+
+            Console.WriteLine();
+            Console.WriteLine($"Söker loggposter i tidsintervallet {intervalStart:O} - {intervalEnd:O}");
+
+            var intervalStartEntry = new LogEntry { Timestamp = intervalStart };
+            var intervalEndEntry = new LogEntry { Timestamp = intervalEnd };
+
+            var intervalSearchResults = new[]
+            {
+                new { Name = "BinarySearch", StartIndex = logSearchManager.BinarySearch(logsByTime, intervalStartEntry), EndIndex = logSearchManager.BinarySearch(logsByTime, intervalEndEntry), Timing = MeasureAverage(RepeatCount, () => logSearchManager.BinarySearch(logsByTime, intervalStartEntry)) },
+                new { Name = "JumpSearch", StartIndex = logSearchManager.JumpSearch(logsByTime, intervalStartEntry), EndIndex = logSearchManager.JumpSearch(logsByTime, intervalEndEntry), Timing = MeasureAverage(RepeatCount, () => logSearchManager.JumpSearch(logsByTime, intervalStartEntry)) }
+            };
+
+            foreach (var result in intervalSearchResults)
+            {
+                if (result.StartIndex >= 0 && result.EndIndex >= 0 && result.EndIndex >= result.StartIndex)
+                {
+                    int count = result.EndIndex - result.StartIndex + 1;
+                    Console.WriteLine($"{result.Name}: startIndex={result.StartIndex}, endIndex={result.EndIndex}, träffar={count}, medelms={result.Timing:F4}");
+                }
+                else
+                {
+                    Console.WriteLine($"{result.Name}: hittade inte båda intervallets gränser (startIndex={result.StartIndex}, endIndex={result.EndIndex})");
+                }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Körningen är klar. Använd resultaten för att jämföra sökalgoritmernas prestanda.");
+        }
+
+        private static void RunSearchCase(string caseDescription, string algorithmName, int repeats, Func<int> searchAction)
+        {
+            var (index, averageMs) = MeasureAverage(repeats, searchAction);
+            string foundText = index >= 0 ? $"träff vid index {index}" : "ingen träff";
+            Console.WriteLine($"{caseDescription} med {algorithmName}: {foundText}, medelvärde över {repeats} upprepningar = {averageMs:F4} ms");
+        }
+
+        private static (int index, double averageMilliseconds) MeasureAverage(int repeats, Func<int> action)
+        {
+            if (repeats <= 0) throw new ArgumentOutOfRangeException(nameof(repeats));
+
+            long totalTicks = 0;
+            int lastIndex = -1;
+            var sw = new Stopwatch();
+
+            for (int i = 0; i < repeats; i++)
+            {
+                sw.Restart();
+                lastIndex = action();
+                sw.Stop();
+                totalTicks += sw.ElapsedTicks;
+            }
+
+            double averageMs = totalTicks * 1000.0 / repeats / Stopwatch.Frequency;
+            return (lastIndex, averageMs);
         }
     }
 }

@@ -168,13 +168,43 @@ namespace AlgorithmLib
 
 
 
-        /// <summary>
-        /// Sorterar listan med Quick Sort-algoritmen.
-        /// </summary>
-        /// <param name="collection">Listan som ska sorteras.</param>
         public void QuickSort(IList<T> collection)
         {
-            throw new NotImplementedException();
+            QuickSortRecursive(collection, 0, collection.Count - 1);
+        }
+
+        private void QuickSortRecursive(IList<T> collection, int low, int high)
+        {
+            if (low >= high)
+                return;
+
+            int pivotIndex = Partition(collection, low, high);
+
+            QuickSortRecursive(collection, low, pivotIndex - 1);
+            QuickSortRecursive(collection, pivotIndex + 1, high);
+        }
+
+        private int Partition(IList<T> collection, int low, int high)
+        {
+            T pivot = collection[high];
+            int i = low - 1;
+
+            for (int j = low; j < high; j++)
+            {
+                if (((IComparable<T>)collection[j]).CompareTo(pivot) <= 0)
+                {
+                    i++;
+                    T temp = collection[i];
+                    collection[i] = collection[j];
+                    collection[j] = temp;
+                }
+            }
+
+            T temp2 = collection[i + 1];
+            collection[i + 1] = collection[high];
+            collection[high] = temp2;
+
+            return i + 1;
         }
 
         public void SelectionSort(IList<T> collection)

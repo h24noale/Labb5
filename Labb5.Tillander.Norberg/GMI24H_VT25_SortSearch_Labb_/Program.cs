@@ -7,42 +7,53 @@ namespace GMI24H_VT25_SortSearch_Labb_
 {
     internal class Program
     {
+        // Antal gånger varje test körs för att få ett stabilt medelvärde
         private const int RepeatCount = 100;
 
         static void Main(string[] args)
         {
+            // Antal loggposter som genereras
             const int numberOfPosts = 500000;
             const int seed = 123;
 
+            // Genererar reproducerbar testdata (loggar)
             var generator = new RandomLogGenerator();
             var logs = generator.GenerateLogs(numberOfPosts, seed).ToList();
 
-            // Test för sökalgoritmerna innan vi kör på loggdatan. Bra för att verifiera att de fungerar korrekt innan vi mäter prestanda.
+            // Kör enkla tester för att verifiera att sökalgoritmer fungerar
             SearchAlgorithmTests.RunBasicSearchTests();
 
             Console.WriteLine($"Totalt antal rader inlästa: {logs.Count}");
 
+            // Visar de första 5 loggposterna för kontroll
             Console.WriteLine("Första 5 loggposter:");
             foreach (var entry in logs.Take(5))
             {
                 Console.WriteLine(entry);
             }
 
+            // Skapar instanser av sök- och sorteringshanterare
             var ipSearchManager = new SearchingManager<string>();
             var intSearchManager = new SearchingManager<int>();
             var logSearchManager = new SearchingManager<LogEntry>();
-
             var sortingManager = new SortingManager<LogEntry>();
 
+            // Plockar ut specifika fält för sökning/sortering
             var ipAddresses = logs.Select(entry => entry.IpAddress).ToList();
             var statusCodes = logs.Select(entry => entry.StatusCode).ToList();
+
+            // Sorterar loggar efter tid för tidsbaserade sökningar
             var logsByTime = logs.OrderBy(entry => entry.Timestamp).ToList();
 
+            // Krävs för binärsökning (listor måste vara sorterade)
             ipAddresses.Sort();
             statusCodes.Sort();
 
+            // SEARCH TESTS
+
             string targetIp = "192.168.1.10";
 
+            // Tester för IP-adress
             RunSearchCase("IP-adress", "LinearSearch", RepeatCount,
                 () => ipSearchManager.LinearSearch(ipAddresses, targetIp));
 
@@ -52,11 +63,14 @@ namespace GMI24H_VT25_SortSearch_Labb_
             RunSearchCase("IP-adress", "JumpSearch", RepeatCount,
                 () => ipSearchManager.JumpSearch(ipAddresses, targetIp));
 
+            // Tester för statuskoder
             foreach (int statusCode in new[] { 401, 403, 500 })
             {
                 RunSearchCase($"Statuskod {statusCode}", "BinarySearch", RepeatCount,
                     () => intSearchManager.BinarySearch(statusCodes, statusCode));
             }
+
+            // INTERVALL SÖKNING
 
             DateTime intervalStart = logsByTime[numberOfPosts / 4].Timestamp;
             DateTime intervalEnd = logsByTime[numberOfPosts / 2].Timestamp;
@@ -67,6 +81,7 @@ namespace GMI24H_VT25_SortSearch_Labb_
             var intervalStartEntry = new LogEntry { Timestamp = intervalStart };
             var intervalEndEntry = new LogEntry { Timestamp = intervalEnd };
 
+            // Testar sökning i tidsintervall
             var intervalSearchResults = new[]
             {
                 new
@@ -94,6 +109,7 @@ namespace GMI24H_VT25_SortSearch_Labb_
                 if (result.StartIndex >= 0 && result.EndIndex >= 0 && result.EndIndex >= result.StartIndex)
                 {
                     int count = result.EndIndex - result.StartIndex + 1;
+
                     Console.WriteLine($"{result.Name}: startIndex={result.StartIndex}, endIndex={result.EndIndex}, träffar={count}, medelms={result.Timing:F4}");
                 }
                 else
@@ -102,33 +118,35 @@ namespace GMI24H_VT25_SortSearch_Labb_
                 }
             }
 
-            // =========================
-            // 📊 SORT TESTS
-            // =========================
+            //SORT TESTS 
 
             Console.WriteLine();
             Console.WriteLine("----- SORTERINGSTESTER -----");
 
             var originalLogs = logs.ToList();
 
+            // Bubble Sort test
             RunSortCase("BubbleSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
                 sortingManager.BubbleSort(copy);
             });
 
+            // Insertion Sort test
             RunSortCase("InsertionSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
                 sortingManager.InsertionSort(copy);
             });
 
+            // Merge Sort test
             RunSortCase("MergeSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
                 sortingManager.MergeSort(copy);
             });
 
+            // Quick Sort test
             RunSortCase("QuickSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
@@ -139,10 +157,9 @@ namespace GMI24H_VT25_SortSearch_Labb_
             Console.WriteLine("Körningen är klar.");
         }
 
-        // =========================
-        // 🔍 SEARCH HELPERS
-        // =========================
+        // SEARCH HELPERS        
 
+        // Kör en sökning flera gånger och mäter snittid
         private static void RunSearchCase(string caseDescription, string algorithmName, int repeats, Func<int> searchAction)
         {
             var (index, avgMs) = MeasureAverage(repeats, searchAction);
@@ -151,6 +168,7 @@ namespace GMI24H_VT25_SortSearch_Labb_
             Console.WriteLine($"{caseDescription} med {algorithmName}: {result}, medelvärde över {repeats} upprepningar = {avgMs:F4} ms");
         }
 
+        // Mäta genomsnittlig exekveringstid för sökning
         private static (int index, double averageMilliseconds) MeasureAverage(int repeats, Func<int> action)
         {
             long totalTicks = 0;
@@ -169,16 +187,16 @@ namespace GMI24H_VT25_SortSearch_Labb_
             return (lastIndex, averageMs);
         }
 
-        // =========================
-        // 📊 SORT HELPERS
-        // =========================
+        // Sort helpers
 
+        // Kör sortering flera gånger och mäter snittid
         private static void RunSortCase(string name, int repeats, Action action)
         {
             double avgMs = MeasureSortAverage(repeats, action);
             Console.WriteLine($"{name}: {avgMs:F4} ms");
         }
 
+        // Mäta genomsnittlig exekveringstid för sortering
         private static double MeasureSortAverage(int repeats, Action action)
         {
             long totalTicks = 0;

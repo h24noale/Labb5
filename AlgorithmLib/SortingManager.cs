@@ -32,7 +32,7 @@ namespace AlgorithmLib
                     break;
             }
         }
-
+      
         public void InsertionSort(IList<T> collection)
         {
             for (int i = 1; i < collection.Count; i++)
@@ -133,7 +133,7 @@ namespace AlgorithmLib
                     root = largest;
                 }
             }
-            // Sortera genom att plocka frÃ¥n heapen 
+            // Sortera genom att plocka från heapen 
             for (int i = n - 1; i > 0; i--)
             {
                 T temp = collection[0];

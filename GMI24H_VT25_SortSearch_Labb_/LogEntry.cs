@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 
 namespace GMI24H_VT25_SortSearch_Labb_
 {
@@ -16,7 +15,8 @@ namespace GMI24H_VT25_SortSearch_Labb_
 
         public int CompareTo(LogEntry? other)
         {
-            if (other == null) return 1;
+            if (other == null)
+                return 1;
 
             return Timestamp.CompareTo(other.Timestamp);
         }

@@ -13,7 +13,7 @@ namespace GMI24H_VT25_SortSearch_Labb_
         static void Main(string[] args)
         {
             // Antal loggposter som genereras
-            const int numberOfPosts = 500000;
+            const int numberOfPosts = 5000;
             const int seed = 123;
 
             // Genererar reproducerbar testdata (loggar)
@@ -81,7 +81,6 @@ namespace GMI24H_VT25_SortSearch_Labb_
             var intervalStartEntry = new LogEntry { Timestamp = intervalStart };
             var intervalEndEntry = new LogEntry { Timestamp = intervalEnd };
 
-            // Testar sökning i tidsintervall
             var intervalSearchResults = new[]
             {
                 new
@@ -109,7 +108,6 @@ namespace GMI24H_VT25_SortSearch_Labb_
                 if (result.StartIndex >= 0 && result.EndIndex >= 0 && result.EndIndex >= result.StartIndex)
                 {
                     int count = result.EndIndex - result.StartIndex + 1;
-
                     Console.WriteLine($"{result.Name}: startIndex={result.StartIndex}, endIndex={result.EndIndex}, träffar={count}, medelms={result.Timing:F4}");
                 }
                 else
@@ -118,46 +116,54 @@ namespace GMI24H_VT25_SortSearch_Labb_
                 }
             }
 
-            //SORT TESTS 
+            // SORT TESTS
 
             Console.WriteLine();
             Console.WriteLine("----- SORTERINGSTESTER -----");
 
             var originalLogs = logs.ToList();
 
-            // Bubble Sort test
             RunSortCase("BubbleSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
                 sortingManager.BubbleSort(copy);
             });
 
-            // Insertion Sort test
             RunSortCase("InsertionSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
                 sortingManager.InsertionSort(copy);
             });
 
-            // Merge Sort test
             RunSortCase("MergeSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
                 sortingManager.MergeSort(copy);
             });
 
-            // Quick Sort test
             RunSortCase("QuickSort (Timestamp)", RepeatCount, () =>
             {
                 var copy = originalLogs.ToList();
                 sortingManager.QuickSort(copy);
+            });
+            
+            RunSortCase("HeapSort (Timestamp)", RepeatCount, () =>
+            {
+                var copy = originalLogs.ToList();
+                sortingManager.HeapSort(copy);
+            });
+
+            RunSortCase("SelectionSort (Timestamp)", RepeatCount, () =>
+            {
+                var copy = originalLogs.ToList();
+                sortingManager.SelectionSort(copy);
             });
 
             Console.WriteLine();
             Console.WriteLine("Körningen är klar.");
         }
 
-        // SEARCH HELPERS        
+        // SEARCH HELPERS
 
         // Kör en sökning flera gånger och mäter snittid
         private static void RunSearchCase(string caseDescription, string algorithmName, int repeats, Func<int> searchAction)
@@ -187,7 +193,7 @@ namespace GMI24H_VT25_SortSearch_Labb_
             return (lastIndex, averageMs);
         }
 
-        // Sort helpers
+        // SORT HELPERS
 
         // Kör sortering flera gånger och mäter snittid
         private static void RunSortCase(string name, int repeats, Action action)
